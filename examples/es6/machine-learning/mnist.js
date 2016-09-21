@@ -1,32 +1,34 @@
-"use strict";
+import Promises from 'bluebird';
+import ref from 'ref';
+import fsExtra from 'fs-extra';
+import debug from 'debug';
+import _ from 'lodash';
+import assert from 'better-assert';
+import path from 'path';
 
-let Bluebird = require("bluebird");
-let async = Bluebird.coroutine;
-let fs = Bluebird.promisifyAll(require("fs-extra"));
-let ref = require("ref");
-let float = ref.types.float;
-let uint = ref.types.uint;
-let debug = require("debug")("af:mnist");
-let _ = require("lodash");
-let assert = require("better-assert");
-let path = require("path");
+debug('af:mnist');
 
-let readData = async(function*(f, data) {
+const async = Promises.coroutine;
+const fs = Promises.promisifyAll(fsExtra);
+const float = ref.types.float;
+const uint = ref.types.uint;
+
+const readData = async(function*(f, data) {
     let bytesRead = yield fs.readAsync(f, data, 0, data.length, null);
     if (bytesRead !== data.length) {
-        throw new Error("File reading error!");
+        throw new Error('File reading error!');
     }
 });
 
-let readIdx = async(function*(path, type) {
-    let file = yield fs.openAsync(path, "r");
+const readIdx = async(function*(path, type) {
+    let file = yield fs.openAsync(path, 'r');
     try {
         let d = new Buffer(4);
 
         yield readData(file, d);
 
         if (d[2] != 8) {
-            throw new Error("Unsupported data type");
+            throw new Error('Unsupported data type');
         }
 
         const numDims = d[3];
@@ -55,21 +57,20 @@ let readIdx = async(function*(path, type) {
             dims: dims,
             data: data
         };
-    }
-    finally {
+    } finally {
         yield fs.closeAsync(file);
     }
 });
 
-let mnist = {
+export default const mnist = {
     setup: async(function*(af, expandLabels, frac) {
         frac = Math.min(frac || 1.0, 0.8);
-        let dataRoot =  path.resolve(path.join(__dirname, "../../ml_lab/data/mnist"));
+        let dataRoot =  path.resolve(path.join(__dirname, '../../ml_lab/data/mnist'));
         let AFArray = af.AFArray;
         let Dim4 = af.Dim4;
 
-        let imageData = yield readIdx(path.join(dataRoot, "images-subset"), float);
-        let labelData = yield readIdx(path.join(dataRoot, "labels-subset"), uint);
+        let imageData = yield readIdx(path.join(dataRoot, 'images-subset'), float);
+        let labelData = yield readIdx(path.join(dataRoot, 'labels-subset'), uint);
 
         let rIDims = new Dim4(_(imageData.dims).reverse().value());
         let images = yield AFArray.createAsync(rIDims, af.dType.f32, imageData.data);
@@ -115,8 +116,7 @@ let mnist = {
                 assert(label >= 0 && label <= 9);
                 testLabels.set(label, i, 1);
             }
-        }
-        else {
+        } else {
             let labels = yield AFArray.createAsync(labelData.dims[0], af.dType.u32, labelData.data);
             trainLabels = labels.at(trainIndices);
             testLabels = labels.at(testIndices);
@@ -133,5 +133,3 @@ let mnist = {
         };
     })
 };
-
-module.exports = mnist;

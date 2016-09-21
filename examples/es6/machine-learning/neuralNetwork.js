@@ -1,11 +1,10 @@
-"use strict";
+import Promises from 'bluebird';
+import common from '../common';
+import mnist from './mnist';
+import ANN from './ann';
+import now from 'performance-now';
 
-let Bluebird = require("bluebird");
-let async = Bluebird.coroutine;
-let common = require("../common");
-let mnist = require("./mnist");
-let ANN = require("./ann");
-let now = require("performance-now");
+let async = Promises.coroutine;
 
 let accuracy = function(af, predicted, target) {
     let pMax = af.findMaxAt(predicted, 1);
@@ -14,11 +13,11 @@ let accuracy = function(af, predicted, target) {
 };
 
 let annDemo = async(function*(af, deviceInfo) {
-    console.log("Running ANN Demo on device:\n");
+    console.log('Running ANN Demo on device:\n');
     common.printDeviceInfo(deviceInfo);
-    console.log("");
+    console.log('');
 
-    console.log("Setting up training data.");
+    console.log('Setting up training data.');
     let data = yield mnist.setup(af, true, 0.6);
 
     let featureSize = data.trainImages.elements() / data.numTrain;
@@ -51,13 +50,13 @@ let annDemo = async(function*(af, deviceInfo) {
     let trainOutput = network.predict(trainFeats);
     let testOutput = network.predict(testFeats);
 
-    console.log("Training set:");
+    console.log('Training set:');
     console.log(`Accuracy on training data: ${(accuracy(af, trainOutput, trainTarget)).toFixed(2)}`);
 
-    console.log("Test set:");
+    console.log('Test set:');
     console.log(`Accuracy on testing  data: ${(accuracy(af, testOutput, testTarget)).toFixed(2)}`);
 
     console.log(`Training time: ${((end - start) / 1000).toFixed(10)} seconds\n`);
 });
 
-common.runOnBestDevice(annDemo, "ANN Demo");
+common.runOnBestDevice(annDemo, 'ANN Demo');
