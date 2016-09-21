@@ -28,20 +28,18 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+import Promises from 'bluebird';
+import common from '../common';
 
-"use strict";
-let Bluebird = require("bluebird");
-let async = Bluebird.coroutine;
-let common = require("../common");
-
+const async = Promises.coroutine;
 const numberOfPoints = 20000000;
 
 let pi = async(function*(af, deviceInfo) {
     let AFArray = af.AFArray;
 
-    console.log("Calculating pi on device:\n");
+    console.log('Calculating pi on device:\n');
     common.printDeviceInfo(deviceInfo);
-    console.log("");
+    console.log('');
 
     let x = af.randu(numberOfPoints, af.dtype.f32);
     let y = af.randu(numberOfPoints, af.dtype.f32);
@@ -52,4 +50,4 @@ let pi = async(function*(af, deviceInfo) {
     console.log(`PI = ${piVal}`);
 });
 
-common.runOnAllPlatforms(pi, "pi example");
+common.runOnAllPlatforms(pi, 'pi example');

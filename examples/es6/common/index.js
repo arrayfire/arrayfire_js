@@ -29,13 +29,12 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-"use strict";
-let Bluebird = require("bluebird");
-let async = Bluebird.coroutine;
-let af = require("../../..");
-let util = require("util");
-let now = require("performance-now");
-let _ = require("lodash");
+import Promises from 'bluebird';
+import af from '../../..';
+import now from 'performance-now';
+import _ from 'lodash';
+
+const async = Promises.coroutine;
 
 let runOnDevices = async(function*(platformID, f, onID) {
     let afOfPlatform = af(platformID);
@@ -52,7 +51,7 @@ let runOnDevices = async(function*(platformID, f, onID) {
 
 let runOnAllPlatforms = async(function*(f, name) {
     let platfroms = af.supportedPlatforms();
-    console.log(`Running ${name} on all supported platfroms: ${platfroms.join(", ")}\n`);
+    console.log(`Running ${name} on all supported platfroms: ${platfroms.join(', ')}\n`);
     try {
         for (let id of platfroms) {
             yield runOnDevices(id, f);
@@ -65,7 +64,7 @@ let runOnAllPlatforms = async(function*(f, name) {
 
 let runOnBestDevice = async(function*(f, name) {
     let platfroms = af.supportedPlatforms();
-    let order = ["CUDA", "OpenCL", "CPU"];
+    let order = ['CUDA', 'OpenCL', 'CPU'];
     console.log(`Running ${name} on best available device.\n`);
     try {
         if (_(platfroms).contains(order[0])) {
